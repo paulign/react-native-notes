@@ -6,11 +6,9 @@ import {
     Text,
     View,
     ListView,
-    ActivityIndicator,
     Navigator,
     TouchableOpacity,
-    Image,
-    CheckBox
+    RefreshControl
 } from 'react-native';
 
 import Note from './note';
@@ -110,11 +108,14 @@ export default class Main extends Component<{}> {
     render() {
         return (
             <View style={styles.container}>
-                <ActivityIndicator
-                    animating={this.state.loading}
-                    size="small"
-                    color={'darkblue'} />
                 <ListView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.loading}
+                            onRefresh={this.getNotes.bind(this)}
+                            colors={['lightblue']}
+                        />
+                    }
                     dataSource={this.state.dataSource}
                     renderRow={this.renderRow}
                     enableEmptySections={true}

@@ -3,9 +3,9 @@ import {
     StyleSheet,
     Text,
     ScrollView,
-    ActivityIndicator,
     TouchableOpacity,
-    AsyncStorage
+    AsyncStorage,
+    RefreshControl
 } from 'react-native';
 import { NavigationActions } from 'react-navigation'
 
@@ -31,23 +31,23 @@ export default class NoteDetails extends Component<{}> {
     getNote() {
         this.setState({ loading: true });
         return AsyncStorage.getItem(this.state._id).then((response) => JSON.parse(response))
-        .then((note) => {
-            console.log(note)
+            .then((note) => {
+                console.log(note)
 
-            this.setState({ loading: false, title: note.title, body: note.body });
-            const { navigate } = this.props.navigation;
-            this.props.navigation.setParams({
-                headerRight: (
-                    <TouchableOpacity
-                        onPress={() => navigate('EditNote', { title: this.state.title, _id: this.state._id, body: this.state.body })}
-                    >
-                        <Text style={styles.backButton}>
-                            Edit
+                this.setState({ loading: false, title: note.title, body: note.body });
+                const { navigate } = this.props.navigation;
+                this.props.navigation.setParams({
+                    headerRight: (
+                        <TouchableOpacity
+                            onPress={() => navigate('EditNote', { title: this.state.title, _id: this.state._id, body: this.state.body })}
+                        >
+                            <Text style={styles.backButton}>
+                                Edit
               </Text>
-                    </TouchableOpacity>
-                )
-            });
-        })
+                        </TouchableOpacity>
+                    )
+                });
+            })
         /* return fetch(url + this.state._id)
             .then((response) => response.json())
             .then((responseJson) => {
@@ -75,11 +75,14 @@ export default class NoteDetails extends Component<{}> {
     render() {
         const { navigate } = this.props.navigation;
         return (
-            <ScrollView >
-                <ActivityIndicator
-                    animating={this.state.loading}
-                    size="small"
-                    color={'darkblue'} />
+            <ScrollView
+                refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.loading}
+                        onRefresh={this.getNote.bind(this)}
+                        colors={['lightblue']}
+                    />
+                }>
                 <Text style={styles.noteTitle}>
                     {this.state.title}
                 </Text>

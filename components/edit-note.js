@@ -8,7 +8,8 @@ import {
     KeyboardAvoidingView,
     View,
     Keyboard,
-    AsyncStorage
+    AsyncStorage,
+    RefreshControl
 } from 'react-native';
 import { NavigationActions } from 'react-navigation'
 
@@ -35,7 +36,7 @@ export default class EditNote extends Component<{}> {
     constructor(props) {
         super(props);
         const { params } = this.props.navigation.state;
-        this.state = { bold: '', red: '', title: params.title, _id: params._id, body: params.body, height: 0 };
+        this.state = { bold: '', red: '', title: params.title, _id: params._id, body: params.body, height: 0, loading: false };
     }
 
     componentDidMount() {
@@ -55,13 +56,15 @@ export default class EditNote extends Component<{}> {
 
     editNote = () => {
         Keyboard.dismiss();
+        this.setState({ loading: true });        
         let id = this.state._id;
         console.log(id);
-        AsyncStorage.mergeItem(id, JSON.stringify({title: this.state.title, body: this.state.body })).then((responseJson) => {
+        AsyncStorage.mergeItem(id, JSON.stringify({ title: this.state.title, body: this.state.body })).then((responseJson) => {
             console.log(responseJson);
+            this.setState({ loading: false });            
             const navigateAction = NavigationActions.navigate({
                 routeName: 'NoteDetails',
-                params: { _id: id } 
+                params: { _id: id }
             });
 
             this.props.navigation.dispatch(navigateAction);
@@ -106,7 +109,13 @@ export default class EditNote extends Component<{}> {
     render() {
 
         return (
-            <ScrollView>
+            <ScrollView
+                refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.loading}
+                        colors={['lightblue']}
+                    />
+                }>
                 <KeyboardAvoidingView behavior={'padding'}>
                     <View>
                         <TextInput placeholder="Type title" style={styles.noteTitle} value={this.state.title} onChangeText={(text) => this.setState({ title: text })} ref={input => { this.titleInput = input }} />
