@@ -5,7 +5,8 @@ import {
     Text,
     View,
     TextInput,
-    Image
+    Image,
+    Animated
 } from 'react-native';
 import { NavigationActions } from 'react-navigation'
 
@@ -17,12 +18,23 @@ export default class Welcome extends Component<{}> {
     };
     constructor(props) {
         super(props);
-        this.state = { bold: '', red: '', name: this.props.name };
+        this.state = { fadeAnim: new Animated.Value(0) };
         const { navigate } = this.props.navigation;
 
         navigatorTimeout = setTimeout(() => {
             this.goToMain();
-        }, 2000);
+        }, 5000);
+    }
+
+    componentDidMount(){
+        console.log(this.state.fadeAnim);
+        Animated.timing(                  // Animate over time
+            this.state.fadeAnim,            // The animated value to drive
+            {
+              toValue: 1,                   // Animate to opacity: 1 (opaque)
+              duration: 2000,              // Make it take a while
+            }
+          ).start(); 
     }
 
     goToMain = () => {
@@ -39,12 +51,14 @@ export default class Welcome extends Component<{}> {
     }
 
     render() {
+        let { fadeAnim } = this.state;
+
         return (
-            <View style={[styles.container, styles.welcome]}>
+            <Animated.View style={[styles.container, styles.welcome, {opacity: fadeAnim}]}>
                 <Text style={styles.welcomeText} onPress={this.goToMain}>
                     Welcome to Notes
                 </Text>
-            </View>
+            </Animated.View>
             // </View>
         );
     }
